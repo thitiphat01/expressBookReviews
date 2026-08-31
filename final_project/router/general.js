@@ -116,89 +116,122 @@ public_users.get("/review/:isbn", (req, res) => {
 
 /*
  * Axios functions for Tasks 10–13
- * These functions demonstrate callbacks, Promises and async/await.
+ * Retrieve books using async/await with Axios.
  */
 
-// Task 10: Get all books using async/await
+const BASE_URL = "http://localhost:5000";
+
+// Task 10: Retrieve all books
 async function getAllBooks() {
   try {
-    const response = await axios.get(
-      "http://localhost:5000/"
-    );
+    const response = await axios.get(`${BASE_URL}/`);
 
-    console.log(response.data);
-    return response.data;
+    if (response.status === 200) {
+      console.log(response.data);
+      return response.data;
+    }
+
+    return null;
   } catch (error) {
     console.error(
-      "Unable to retrieve all books:",
+      "Error retrieving all books:",
       error.message
     );
 
-    throw error;
+    return null;
   }
 }
 
-// Task 11: Search by ISBN using Promise callbacks
-function getBookByISBN(isbn) {
-  return axios
-    .get(`http://localhost:5000/isbn/${isbn}`)
-    .then((response) => {
+// Task 11: Retrieve a book by ISBN
+async function getBooksByISBN(isbn) {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/isbn/${encodeURIComponent(isbn)}`
+    );
+
+    if (response.status === 200) {
       console.log(response.data);
       return response.data;
-    })
-    .catch((error) => {
-      console.error(
-        "Unable to retrieve book by ISBN:",
-        error.message
-      );
+    }
 
-      throw error;
-    });
+    return null;
+  } catch (error) {
+    if (error.response && error.response.status === 404) {
+      console.error("Book not found");
+      return null;
+    }
+
+    console.error(
+      "Error retrieving book by ISBN:",
+      error.message
+    );
+
+    return null;
+  }
 }
 
-// Task 12: Search by author using async/await
+// Task 12: Retrieve books by author
 async function getBooksByAuthor(author) {
   try {
     const encodedAuthor = encodeURIComponent(author);
 
     const response = await axios.get(
-      `http://localhost:5000/author/${encodedAuthor}`
+      `${BASE_URL}/author/${encodedAuthor}`
     );
 
-    console.log(response.data);
-    return response.data;
+    if (response.status === 200) {
+      console.log(response.data);
+      return response.data;
+    }
+
+    return null;
   } catch (error) {
+    if (error.response && error.response.status === 404) {
+      console.error("No books found for this author");
+      return null;
+    }
+
     console.error(
-      "Unable to retrieve books by author:",
+      "Error retrieving books by author:",
       error.message
     );
 
-    throw error;
+    return null;
   }
 }
 
-// Task 13: Search by title using Promise callbacks
-function getBooksByTitle(title) {
-  const encodedTitle = encodeURIComponent(title);
+// Task 13: Retrieve books by title
+async function getBooksByTitle(title) {
+  try {
+    const encodedTitle = encodeURIComponent(title);
 
-  return axios
-    .get(`http://localhost:5000/title/${encodedTitle}`)
-    .then((response) => {
+    const response = await axios.get(
+      `${BASE_URL}/title/${encodedTitle}`
+    );
+
+    if (response.status === 200) {
       console.log(response.data);
       return response.data;
-    })
-    .catch((error) => {
-      console.error(
-        "Unable to retrieve books by title:",
-        error.message
-      );
+    }
 
-      throw error;
-    });
+    return null;
+  } catch (error) {
+    if (error.response && error.response.status === 404) {
+      console.error("No books found with this title");
+      return null;
+    }
+
+    console.error(
+      "Error retrieving books by title:",
+      error.message
+    );
+
+    return null;
+  }
 }
 
 module.exports.general = public_users;
 module.exports.getAllBooks = getAllBooks;
-module.exports.getBookByISBN = getBookByISBN;
+module.exports.getBooksByISBN = getBooksByISBN;
 module.exports.getBooksByAuthor = getBooksByAuthor;
 module.exports.getBooksByTitle = getBooksByTitle;
